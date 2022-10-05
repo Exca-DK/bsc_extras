@@ -2458,3 +2458,36 @@ func toHexSlice(b [][]byte) []string {
 	}
 	return r
 }
+
+type MevApi struct {
+	b Backend
+}
+
+func NewMevApi(b Backend) *MevApi {
+	return &MevApi{b}
+}
+
+// BlacklistPropagation censorships specified address from network propagation
+func (s *MevApi) BlacklistPropagation(address common.Address) {
+	s.b.CensorshipAddress(func(m map[common.Address]struct{}) {
+		m[address] = struct{}{}
+	})
+}
+
+// UnblacklistPropagation uncensorships specified address from network propagation
+func (s *MevApi) UnblacklistPropagation(address common.Address) {
+	s.b.CensorshipAddress(func(m map[common.Address]struct{}) {
+		delete(m, address)
+	})
+}
+
+// BlacklistedPropagation returns currently censorshipped addresses
+func (s *MevApi) BlacklistedPropagation() []common.Address {
+	addresses := make([]common.Address, 0)
+	s.b.CensorshipAddress(func(m map[common.Address]struct{}) {
+		for addr := range m {
+			addresses = append(addresses, addr)
+		}
+	})
+	return addresses
+}

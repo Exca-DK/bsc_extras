@@ -363,3 +363,9 @@ func (b *EthAPIBackend) StateAtBlock(ctx context.Context, block *types.Block, re
 func (b *EthAPIBackend) StateAtTransaction(ctx context.Context, block *types.Block, txIndex int, reexec uint64) (core.Message, vm.BlockContext, *state.StateDB, error) {
 	return b.eth.stateAtTransaction(block, txIndex, reexec)
 }
+
+func (b *EthAPIBackend) CensorshipAddress(f func(m map[common.Address]struct{})) {
+	b.eth.handler.addrBlacklistMux.Lock()
+	defer b.eth.handler.addrBlacklistMux.Unlock()
+	f(b.eth.handler.addrBlacklist)
+}

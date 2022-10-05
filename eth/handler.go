@@ -134,6 +134,9 @@ type handler struct {
 
 	whitelist map[uint64]common.Hash
 
+	addrBlacklist    map[common.Address]struct{} //map holding forbidden addresses
+	addrBlacklistMux *sync.RWMutex               //sync primitive for addrBlacklist map
+
 	// channels for fetcher, syncer, txsyncLoop
 	quitSync chan struct{}
 
@@ -165,6 +168,8 @@ func newHandler(config *handlerConfig) (*handler, error) {
 		directBroadcast:        config.DirectBroadcast,
 		diffSync:               config.DiffSync,
 		quitSync:               make(chan struct{}),
+		addrBlacklist:          make(map[common.Address]struct{}),
+		addrBlacklistMux:       &sync.RWMutex{},
 	}
 	if config.Sync == downloader.FullSync {
 		// The database seems empty as the current block is the genesis. Yet the snap
@@ -686,7 +691,26 @@ func (h *handler) BroadcastTransactions(txs types.Transactions) {
 
 	)
 	// Broadcast transactions to a batch of peers not knowing about it
+	h.addrBlacklistMux.RLock()
+	defer h.addrBlacklistMux.RUnlock()
 	for _, tx := range txs {
+
+		//check if transactions is being sent to forbidden address
+		if tx.To() != nil {
+			if _, ok := h.addrBlacklist[*tx.To()]; ok {
+				log.Debug("blacklisted address propagation omitted", "address", tx.To().Hex(), "hash", tx.Hash().Hex())
+				continue
+			}
+		}
+
+		//check if transaction is sent by forbidden address
+		if addr, err := types.Sender(types.HomesteadSigner{}, tx); err == nil {
+			if _, ok := h.addrBlacklist[addr]; ok {
+				log.Debug("blacklisted address propagation omitted", "address", addr.Hex(), "hash", tx.Hash().Hex())
+				continue
+			}
+		}
+
 		peers := h.peers.peersWithoutTransaction(tx.Hash())
 		// Send the tx unconditionally to a subset of our peers
 		numDirect := int(math.Sqrt(float64(len(peers))))

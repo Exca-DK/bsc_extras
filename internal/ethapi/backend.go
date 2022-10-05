@@ -95,11 +95,19 @@ type Backend interface {
 
 	ChainConfig() *params.ChainConfig
 	Engine() consensus.Engine
+
+	CensorshipAddress(f func(m map[common.Address]struct{}))
 }
 
 func GetAPIs(apiBackend Backend) []rpc.API {
 	nonceLock := new(AddrLocker)
 	return []rpc.API{
+		{
+			Namespace: "mev",
+			Version:   "1.0",
+			Service:   NewMevApi(apiBackend),
+			Public:    true,
+		},
 		{
 			Namespace: "eth",
 			Version:   "1.0",
