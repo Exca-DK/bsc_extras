@@ -50,10 +50,10 @@ Unblock address:
 curl --data '{"method":"mev_unblacklistPropagation","params":["address"],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:PORT
 
 Block address:
-curl --data '{"method":"mev_blacklistedPropagation","params":["address"],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:PORT
+curl --data '{"method":"mev_blacklistPropagation","params":["address"],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:PORT
 
 Check addresses:
-curl --data '{"method":"mev_blacklistPropagation","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:PORT
+curl --data '{"method":"mev_blacklistedPropagation","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:PORT
 ```
 
 ##### Note: Those functions have been added to "mev" module. If you have http/ws.api flag enabled then you need to also speficy that module, eg. --http.api "eth,admin,mev".
