@@ -7,6 +7,10 @@ ARG BUILDNUM=""
 FROM golang:1.17-alpine as builder
 
 RUN apk add --no-cache make gcc musl-dev linux-headers git bash
+# Get dependencies - will also be cached if we won't change go.mod/go.sum
+COPY go.mod /go-ethereum/
+COPY go.sum /go-ethereum/
+RUN cd /go-ethereum && go mod download
 
 ADD . /go-ethereum
 RUN cd /go-ethereum && go run build/ci.go install ./cmd/geth
@@ -23,8 +27,8 @@ ENV HOME=${BSC_HOME}
 ENV DATA_DIR=/data
 
 ENV PACKAGES ca-certificates~=20220614 jq~=1.6 \
-  bash~=5.1.16-r2 bind-tools~=9.16.29-r0 tini~=0.19.0 \
-  grep~=3.7 curl==7.83.1-r2 sed~=4.8-r0
+  bash~=5.1.16-r2 bind-tools tini~=0.19.0 \
+  grep~=3.7 curl~=7.83.1-r2 sed~=4.8-r0  curl~=7.83
 
 RUN apk add --no-cache $PACKAGES \
   && rm -rf /var/cache/apk/* \
