@@ -173,6 +173,7 @@ var (
 		utils.BlockAmountReserved,
 		utils.CheckSnapshotWithMPT,
 		utils.MetadataCacheSizeFlag,
+		utils.OpensslFlag,
 	}
 
 	rpcFlags = []cli.Flag{

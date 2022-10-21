@@ -17,7 +17,7 @@ mv ./bsc_extras/build/bin/geth ./geth
 
 ## Key changes/features
 
-- ### Metadata
+- ## Metadata
 
 Bnb currently is swarmed with fake nodes which have negative impact for overall performance of the chain. Metadata can be used to filter the most basic nodes due to their inactivity or spamming actions.
  
@@ -57,3 +57,9 @@ curl --data '{"method":"mev_blacklistedPropagation","params":[],"id":1,"jsonrpc"
 ```
 
 ##### Note: Those functions have been added to "mev" module. If you have http/ws.api flag enabled then you need to also speficy that module, eg. --http.api "eth,admin,mev".
+
+- ## Openssl
+Encryption/Decryption can be optionally set to use openssl implementation.  Openssl AES CTR is faster and uses less resources in comparison to golang native implementation. 
+
+##### In order to use that feature make sure that openssl installed.
+##### In order to enable new feature set --openssl flag. By default this feature is disabled.
